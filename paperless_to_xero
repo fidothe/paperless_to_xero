@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+require 'csv'
+
+input = ARGV[0]
+output = ARGV[1]
+
+
+def extract_vat_type(country)
+  case country
+  when 'France - 5.5%'
+    '5.5% (France, VAT on expenses)'
+  when /Fr/
+    '19.6% (France, VAT on expenses)'
+  when 'EU'
+    '15% (EU VAT ID)'
+  when /Irl/
+    '21.5% (Ireland)'
+  when /Lux/
+    '15% (Luxembourg, VAT on expenses)'
+  end
+end
+
+input_csv = CSV.read(input)
+# remove Paperless header row
+input_csv.shift
+CSV.open(output, 'w') do |writer|
+  # Xero header row
+  writer << ['ContactName','InvoiceNumber','InvoiceDate','DueDate','SubTotal',
+             'TotalTax','Total','Description','Quantity','UnitAmount','AccountCode','TaxType','TaxAmount',
+             'TrackingName1','TrackingOption1','TrackingName2','TrackingOption2']
+  
+  # body rows
+  input_csv.each do |row|
+    date, merchant, currency, amount, vat, category, payment_method, notes, description, reference, status = row
+    negative = amount.index('--') == 0
+    category = category[0..2]
+    unless negative # negative stuff ought to be a credit note. not sure if that works...
+      case vat
+      when nil
+        vat_free_amount = amount
+      when '0.00'
+        vat_free_amount = amount
+      else
+        vat_free_amount = amount
+        # remove the decimal place (scaling by 100 and giving us integers not floats)
+        amount_in_pence = amount.tr('.', '').to_i
+        vat_in_pence = vat.tr('.', '').to_i
+        # deduct VAT from total
+        vat_free_amount_in_pence = amount_in_pence - vat_in_pence
+        vat_free_amount = vat_free_amount_in_pence.to_s
+        # scale the amount back to pounds and pence...
+        vat_free_amount = "#{vat_free_amount[0..-3]}.#{vat_free_amount[-2..-1]}"
+        vat_free_amount = "0#{vat_free_amount}" if vat_free_amount.index('.') == 0 # deal with .32 not 0.32
+      end
+      vat_type_match = notes.nil? ? nil : notes.match(/VAT - ([A-Za-z]+(?: [0-9]+(?:\.[0-9]+)%)?)/)
+      if vat_type_match.nil?
+        vat_type = '15% (VAT on expenses)'
+      else
+        vat_type = extract_vat_type(vat_type_match[1])
+      end
+      if vat.nil?
+        vat_type = 'No VAT'
+      elsif vat == '0.00'
+        vat_type = 'Zero Rated Expenses'
+      end
+      
+      # currency fudging
+      actual_currency_match = notes.nil? ? nil : notes.match(/(\$|€|DKK|USD|EUR)/)
+      actual_currency = actual_currency_match.nil? ? nil : actual_currency_match[1]
+      
+      description = description + " (#{actual_currency})" unless actual_currency.nil?
+      
+      writer << [merchant, reference, date, nil, nil, nil, nil, description, '1', vat_free_amount, category, vat_type, vat, nil, nil, nil, nil]
+    end
+  end
+end
