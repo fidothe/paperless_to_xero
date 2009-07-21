@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+$:.push(File.expand_path(File.dirname(__FILE__) + '/../lib'))
+require 'optparse'
+require 'paperless_to_xero'
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: paperless_to_xero [opts] /path/to/input.csv /path/to/output.csv"
+  opts.separator ""
+  opts.separator "Common options:"
+  
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+  
+  opts.on_tail("--version", "Show version") do
+    require 'paperless_to_xero/version'
+    puts PaperlessToXero::Version()
+    puts "Copyright (c) 2009, Matt Patterson. Released under the MIT license"
+    exit
+  end
+end.parse!
+
+input = ARGV[0]
+output = ARGV[1]
+
+converter = PaperlessToXero::Converter.new(input, output)
+converter.convert!
+
