@@ -21,6 +21,16 @@ describe PaperlessToXero::Converter do
       @converter.parse
     end
     
+    it "should able to create an invoice for a single-item invoice with an amount over 1,000 (Paperless likes to add the commas)" do
+      @converter.stubs(:input_path).returns(fixture_path('single-1000'))
+      mock_invoice = mock()
+      
+      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-05-31'), 'Bertrams Hotel Guldsmeden', '2009-05-31-02', 'GBP').returns(mock_invoice)
+      mock_invoice.expects(:add_item).with('Reboot hotel booking', '2235.00', '447.00', '494', 'VAT - Denmark - 25%', true)
+      
+      @converter.parse
+    end
+    
     it "should able to create an invoice for a zero-rated single-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('single-zero_rated'))
       mock_invoice = mock()

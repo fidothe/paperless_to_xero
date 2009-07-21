@@ -23,6 +23,9 @@ module PaperlessToXero
         negative = amount.index('--') == 0
         category = category[0..2] unless category.nil?
         unless negative # negative stuff ought to be a credit note. not sure if that works...
+          # process amounts for commas added by Paperless
+          amount = amount.tr(',', '') unless amount.nil?
+          vat = vat.tr(',', '') unless vat.nil?
           notes = extract_notes(notes_field)
           invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, extract_currency(notes))
           if extras.empty?
