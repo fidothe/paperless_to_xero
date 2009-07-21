@@ -1,0 +1,5 @@
+= Paperless-to-Xero
+
+A simple translator which takes a CSV file from Mariner's Paperless receipt/document management software and makes a Xero accounts payable invoice CSV, for import into Xero.
+
+Formatting in Paperless is very important, so you probably want to wait until I've written the docs
