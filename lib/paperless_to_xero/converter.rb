@@ -23,16 +23,19 @@ module PaperlessToXero
         category = category[0..2] unless category.nil?
         unless negative # negative stuff ought to be a credit note. not sure if that works...
           notes = extract_notes(notes_field)
-          invoice = PaperlessToXero::Invoice.new(date, merchant, reference, extract_currency(notes))
+          invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, extract_currency(notes))
           if extras.empty?
-            invoice.add_item(description, amount, category, extract_vat_note(vat, notes), true)
+            invoice.add_item(description, amount, vat, category, extract_vat_note(vat, notes), true)
           else
             raise RangeError, "input CSV row is badly formatted" unless extras.size % 6 == 0
             items = chunk_extras(extras)
             items.each do |item|
               description, paperless_currency, amount, unknown, category, notes_field = item
               category = category[0..2]
-              invoice.add_item(description, amount, category, extract_vat_note(vat, extract_notes(notes_field)), true)
+              notes = extract_notes(notes_field)
+              vat_amount = extract_vat_amount(notes)
+              vat_note = extract_vat_note(vat_amount, notes)
+              invoice.add_item(description, amount, vat_amount, category, vat_note, true)
             end
           end
           invoices << invoice
@@ -65,6 +68,11 @@ module PaperlessToXero
     
     private
     
+    def extract_date(date_string)
+      ds, day, month, year = date_string.match(/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/).to_a
+      Date.parse("#{year}-#{month}-#{day}")
+    end
+    
     def chunk_extras(extras)
       duped_extras = extras.dup
       (1..(extras.size / 6)).inject([]) do |chunked, i|
@@ -90,14 +98,21 @@ module PaperlessToXero
       "GBP"
     end
     
-    def extract_vat_note(vat, notes)
+    def extract_vat_amount(notes)
+      notes.each do |item|
+        return item if item.match(/^[0-9]+\.[0-9]{1,2}$/)
+      end
+      nil
+    end
+    
+    def extract_vat_note(vat_amount, notes)
       notes.each do |item|
         return item if item.match(/^VAT/)
       end
       
-      case vat
+      case vat_amount
       when "0.00"
-        'Zero Rated Expenses'
+        'VAT - 0%'
       when nil
         'No VAT'
       else

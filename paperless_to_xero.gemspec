@@ -8,11 +8,15 @@ Gem::Specification.new do |s|
   s.authors = ["Matt Patterson"]
   s.date = %q{2009-07-21}
   s.default_executable = %q{paperless_to_xero}
-  s.description = %q{}
+  s.description = %q{= Paperless-to-Xero
+
+A simple translator which takes a CSV file from Mariner's Paperless receipt/document management software and makes a Xero accounts payable invoice CSV, for import into Xero.
+
+Formatting in Paperless is very important, so you probably want to wait until I've written the docs}
   s.email = %q{matt@reprocessed.org}
   s.executables = ["paperless_to_xero"]
   s.extra_rdoc_files = ["README.rdoc"]
-  s.files = ["Rakefile", "README.rdoc", "bin/paperless_to_xero", "spec/fixtures", "spec/fixtures/multi-foreign.csv", "spec/fixtures/multi-item.csv", "spec/fixtures/single-basic.csv", "spec/fixtures/single-foreign.csv", "spec/paperless_to_xero", "spec/paperless_to_xero/converter_spec.rb", "spec/paperless_to_xero/invoice_item_spec.rb", "spec/paperless_to_xero/invoice_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "lib/paperless_to_xero", "lib/paperless_to_xero/converter.rb", "lib/paperless_to_xero/invoice.rb", "lib/paperless_to_xero/invoice_item.rb", "lib/paperless_to_xero/version.rb", "lib/paperless_to_xero.rb"]
+  s.files = ["Rakefile", "README.rdoc", "bin/paperless_to_xero", "spec/fixtures", "spec/fixtures/end_to_end-input.csv", "spec/fixtures/end_to_end-output.csv", "spec/fixtures/multi-foreign.csv", "spec/fixtures/multi-item.csv", "spec/fixtures/single-basic.csv", "spec/fixtures/single-foreign.csv", "spec/fixtures/single-zero_rated.csv", "spec/paperless_to_xero", "spec/paperless_to_xero/converter_spec.rb", "spec/paperless_to_xero/invoice_item_spec.rb", "spec/paperless_to_xero/invoice_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "lib/paperless_to_xero", "lib/paperless_to_xero/converter.rb", "lib/paperless_to_xero/invoice.rb", "lib/paperless_to_xero/invoice_item.rb", "lib/paperless_to_xero/version.rb", "lib/paperless_to_xero.rb"]
   s.homepage = %q{http://reprocessed.org/}
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]

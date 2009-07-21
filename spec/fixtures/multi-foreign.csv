@@ -1,2 +1,2 @@
 "Date","Merchant","Currency","Amount","Tax","Category","Payment Method","Notes","Description","Reference #","Status"
-22/06/2009,"Geberer","£","2.80",,"494 - Travel International","Cash","€ ","Food & Coffee","2009-06-22-02",,"Coffee","£","1.50",,"494 - Travel International","€; VAT - Germany - 19%","Food","£","1.30",,"494 - Travel International","€; VAT - Germany - 7%"
+22/06/2009,"Geberer","£","2.80",,"494 - Travel International","Cash","€ ","Food & Coffee","2009-06-22-02",,"Coffee","£","1.50",,"494 - Travel International","0.24; VAT - Germany - 19%","Food","£","1.30",,"494 - Travel International","0.09; VAT - Germany - 7%"

@@ -12,8 +12,8 @@ module PaperlessToXero
       @items ||= []
     end
     
-    def add_item(description, amount, category, vat_note, vat_inclusive)
-      items << PaperlessToXero::InvoiceItem.new(description, amount, category, vat_note, vat_inclusive)
+    def add_item(description, amount, vat_amount, category, vat_note, vat_inclusive)
+      items << PaperlessToXero::InvoiceItem.new(description, amount, vat_amount, category, vat_note, vat_inclusive)
     end
     
     def serialise_to_csv(csv)

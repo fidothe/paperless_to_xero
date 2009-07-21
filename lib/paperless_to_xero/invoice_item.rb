@@ -23,16 +23,16 @@ module PaperlessToXero
     
     attr_reader :description, :amount, :category, :vat_inclusive, :vat_inclusive_amount, :vat_exclusive_amount, :vat_amount, :vat_type
     
-    def initialize(description, amount, category, vat_note = 'VAT - 15%', vat_inclusive = true)
-      @description, @category, @vat_inclusive = description, category, vat_inclusive
-      @amount = amount.match(/[0-9]+\.[0-9]{2}/).to_s
+    def initialize(description, amount, vat_amount, category, vat_note = 'VAT - 15%', vat_inclusive = true)
+      @amount, @vat_amount, @description, @category, @vat_inclusive = amount, vat_amount, description, category, vat_inclusive
       @vat_type = extract_vat_type(vat_note)
       
       vat_rate = fetch_vat_rate(vat_type)
       case vat_rate
       when BigDecimal
         decimal_amount = BigDecimal.new(@amount)
-        vat_inclusive ? amounts_when_vat_inclusive(decimal_amount, vat_rate) : amounts_when_vat_exclusive(decimal_amount, vat_rate)
+        decimal_vat_amount = @vat_amount.nil? ? nil : BigDecimal.new(@vat_amount)
+        vat_inclusive ? amounts_when_vat_inclusive(decimal_amount, decimal_vat_amount) : amounts_when_vat_exclusive(decimal_amount, decimal_vat_amount)
       else
         amounts_when_zero_rated_or_non_vat(vat_rate)
       end
@@ -46,18 +46,18 @@ module PaperlessToXero
       @vat_amount = vat_rate.nil? ? nil : "0.00"
     end
     
-    def amounts_when_vat_inclusive(inc_vat_amount, vat_rate)
-      @vat_inclusive_amount = formatted_decimal(inc_vat_amount)
-      ex_vat_amount = inc_vat_amount / vat_rate
-      @vat_exclusive_amount = formatted_decimal(ex_vat_amount)
-      @vat_amount = formatted_decimal(inc_vat_amount - ex_vat_amount)
+    def amounts_when_vat_inclusive(decimal_inc_vat_amount, decimal_vat_amount)
+      @vat_inclusive_amount = formatted_decimal(decimal_inc_vat_amount)
+      @vat_amount = formatted_decimal(decimal_vat_amount)
+      decimal_ex_vat_amount = decimal_inc_vat_amount - decimal_vat_amount
+      @vat_exclusive_amount = formatted_decimal(decimal_ex_vat_amount)
     end
     
-    def amounts_when_vat_exclusive(ex_vat_amount, vat_rate)
-      @vat_exclusive_amount = formatted_decimal(ex_vat_amount)
-      inc_vat_amount = ex_vat_amount * vat_rate
-      @vat_inclusive_amount = formatted_decimal(inc_vat_amount)
-      @vat_amount = formatted_decimal(inc_vat_amount - ex_vat_amount)
+    def amounts_when_vat_exclusive(decimal_ex_vat_amount, decimal_vat_amount)
+      @vat_exclusive_amount = formatted_decimal(decimal_ex_vat_amount)
+      @vat_amount = formatted_decimal(decimal_vat_amount)
+      decimal_inc_vat_amount = decimal_ex_vat_amount + decimal_vat_amount
+      @vat_inclusive_amount = formatted_decimal(decimal_inc_vat_amount)
     end
     
     def formatted_decimal(value)

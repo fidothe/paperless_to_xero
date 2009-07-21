@@ -1,0 +1,9 @@
+ContactName,InvoiceNumber,InvoiceDate,DueDate,SubTotal,TotalTax,Total,Description,Quantity,UnitAmount,AccountCode,TaxType,TaxAmount,TrackingName1,TrackingOption1,TrackingName2,TrackingOption2
+Geberer (EUR),2009-06-22-02,22/06/2009,22/06/2009,,,,Coffee,1,1.26,494,"19% (Germany, VAT on expenses)",0.24,,,,
+,2009-06-22-02,,,,,,Food,1,1.21,494,"7% (Germany, VAT on expenses)",0.09,,,,
+FDIH (EUR),2009-05-29-02,29/05/2009,29/05/2009,,,,Reboot 11 ticket,1,200.00,480,"25% (Denmark, VAT on expenses)",50.00,,,,
+"Apple Store, Regent Street",2009-05-18-09,18/05/2009,18/05/2009,,,,Mac Mini,1,433.91,720,15% (VAT on expenses),65.09,,,,
+,2009-05-18-09,,,,,,iWork 09,1,60.87,463,15% (VAT on expenses),9.13,,,,
+,2009-05-18-09,,,,,,VMWare Fusion,1,42.57,463,15% (VAT on expenses),6.38,,,,
+"Apple Store, Regent Street",2009-05-18-05,18/05/2009,18/05/2009,,,,Phone case,1,13.00,429,15% (VAT on expenses),1.95,,,,
+Rexel Senate,2009-04-23-04,23/04/2009,23/04/2009,,,,Cat 6 modules,1,70.80,325,15% (VAT on expenses),10.62,,,,
