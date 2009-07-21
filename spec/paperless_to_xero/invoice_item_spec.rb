@@ -136,6 +136,8 @@ describe PaperlessToXero::InvoiceItem do
          'VAT - France'           => '19.6% (France, VAT on expenses)',
          'VAT - Denmark - 25%'    => '25% (Denmark, VAT on expenses)',
          'VAT - Denmark'          => '25% (Denmark, VAT on expenses)',
+         'VAT - Sweden - 25%'     => '25% (Sweden, VAT on expenses)',
+         'VAT - Sweden'           => '25% (Sweden, VAT on expenses)',
          'VAT - Ireland - 21.5%'  => '21.5% (Ireland, VAT on expenses)',
          'VAT - Ireland'          => '21.5% (Ireland, VAT on expenses)',
          'VAT - Luxembourg - 15%' => '15% (Luxembourg, VAT on expenses)',

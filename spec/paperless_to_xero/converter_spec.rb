@@ -40,6 +40,16 @@ describe PaperlessToXero::Converter do
       
       @converter.parse
     end
+    
+    it "should able to create an invoice for a foreign currency (not € or $) single-item invoice" do
+      @converter.stubs(:input_path).returns(fixture_path('single-dkk'))
+      mock_invoice = mock()
+      
+      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-06-24'), 'Halvandet', '2009-06-24-03', 'DKK').returns(mock_invoice)
+      mock_invoice.expects(:add_item).with('Food & drink', '73.00', '14.60', '494', 'VAT - Denmark - 25%', true)
+      
+      @converter.parse
+    end
   end
   
   describe "multi-item inputs" do

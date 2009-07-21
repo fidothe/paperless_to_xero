@@ -1,4 +1,5 @@
 require 'csv'
+require 'date'
 
 module PaperlessToXero
   class Converter
@@ -87,7 +88,7 @@ module PaperlessToXero
     
     def extract_currency(notes)
       notes.each do |item|
-        return item if item.match(/^[A_Z]{3}$/)
+        return item if item.match(/^[A-Z]{3}$/)
         case item
         when "€"
           return "EUR"

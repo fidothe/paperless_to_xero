@@ -84,6 +84,8 @@ module PaperlessToXero
         '25% (Denmark, VAT on expenses)'
       when /Irel/
         '21.5% (Ireland, VAT on expenses)'
+      when /Sweden/
+        '25% (Sweden, VAT on expenses)'
       when /Lux/
         '15% (Luxembourg, VAT on expenses)'
       when /VAT - EU/
