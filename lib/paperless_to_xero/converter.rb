@@ -27,7 +27,8 @@ module PaperlessToXero
           amount = amount.tr(',', '') unless amount.nil?
           vat = vat.tr(',', '') unless vat.nil?
           notes = extract_notes(notes_field)
-          invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, amount, vat, inc_vat?(notes), extract_currency(notes))
+          total_vat = vat.nil? ? "0.00" : vat
+          invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, amount, total_vat, inc_vat?(notes), extract_currency(notes))
           if extras.empty?
             invoice.add_item(description, amount, vat, category, extract_vat_note(vat, notes))
           else

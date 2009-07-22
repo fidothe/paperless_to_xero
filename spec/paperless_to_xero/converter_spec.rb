@@ -1,6 +1,21 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 require 'tempfile'
 
+Spec::Matchers.define :have_detail_matching do |key, value|
+  match do |object|
+    object.send(key) == value
+  end
+  failure_message_for_should do |object|
+    "Expected <#{object.class.name}>.#{key} to match '#{value}'. Instead, it was '#{object.send(key)}'"
+  end
+  failure_message_for_should_not do |object|
+    "Expected <#{object.class.name}>.#{key} NOT to match '#{value}'"
+  end
+  description do
+    "have detail #{key.inspect} matching '#{value}'"
+  end
+end
+
 describe PaperlessToXero::Converter do
   before(:each) do
     @converter = PaperlessToXero::Converter.new('/input/path', '/output/path')
@@ -10,90 +25,172 @@ describe PaperlessToXero::Converter do
     File.expand_path(File.dirname(__FILE__) + "/../fixtures/#{name}.csv")
   end
   
+  def verify_invoice_details(details)
+    invoice = @converter.invoices.first
+    invoice_details = details[:invoice]
+    
+    invoice_details.each do |key, value|
+      invoice.should have_detail_matching(key, value)
+    end
+    
+    invoice.should be_vat_inclusive     if details[:vat_inclusive]
+    invoice.should_not be_vat_inclusive if details[:vat_exclusive]
+    
+    line_items_details = {:description => 'Phone case', :category => '429', :vat_inclusive_amount => '14.95', :vat_exclusive_amount => '13.00', :vat_amount => '1.95', :vat_type => '15% (VAT on expenses)'}
+    line_items = invoice.items.dup
+    if details[:line_items]
+      details[:line_items].each do |line_item_details|
+        line_item = line_items.shift
+        line_item_details.each do |key, value|
+          line_item.should have_detail_matching(key, value)
+        end
+      end
+    end
+  end
+  
   describe "single item inputs" do
     it "should able to create an invoice for a basic single-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('single-basic'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-05-18'), 'Apple Store, Regent Street', '2009-05-18-05', '14.95', '1.95', true, 'GBP').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Phone case', '14.95', '1.95', '429', 'VAT - 15%')
-      
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:date => Date.parse('2009-05-18'), :merchant => 'Apple Store, Regent Street', 
+                     :reference_id => '2009-05-18-05', :inc_vat_total => '14.95', :vat_total => '1.95', 
+                     :ex_vat_total => '13.00', :currency => 'GBP'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:description => 'Phone case', :category => '429', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '14.95', :vat_exclusive_amount => '13.00', :vat_amount => '1.95'}
+        ]
+      )
     end
     
     it "should able to create an invoice for a single-item invoice with an amount over 1,000 (Paperless likes to add the commas)" do
       @converter.stubs(:input_path).returns(fixture_path('single-1000'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-05-31'), 'Bertrams Hotel Guldsmeden', '2009-05-31-02', '2235.00', '447.00', true, 'GBP').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Reboot hotel booking', '2235.00', '447.00', '494', 'VAT - Denmark - 25%')
-      
       @converter.parse
+      verify_invoice_details(
+        :invoice => {:inc_vat_total => '2235.00'},
+        :line_items => [
+          {:vat_inclusive_amount => '2235.00'}
+        ]
+      )
     end
     
     it "should able to create an invoice for a zero-rated single-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('single-zero_rated'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-03-10'), 'Transport For London', '2009-03-10-06', '20.00', '0.00', true, 'GBP').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Oyster card auto top-up', '20.00', '0.00', '493', 'VAT - 0%')
-      
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:merchant => 'Transport For London', :inc_vat_total => '20.00', :vat_total => '0.00', 
+                     :ex_vat_total => '20.00'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:vat_type => 'Zero Rated Expenses', :vat_inclusive_amount => '20.00', :vat_exclusive_amount => '20.00', 
+           :vat_amount => '0.00'}
+        ]
+      )
     end
     
     it "should able to create an invoice for a foreign currency single-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('single-foreign'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-05-29'), 'FDIH', '2009-05-29-02', '250.00', '50.00', true, 'EUR').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Reboot 11 ticket', '250.00', '50.00', '480', 'VAT - Denmark - 25%')
-      
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:currency => 'EUR', :inc_vat_total => '250.00', :vat_total => '50.00', 
+                     :ex_vat_total => '200.00'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:vat_type => '25% (Denmark, VAT on expenses)', :vat_inclusive_amount => '250.00', :vat_exclusive_amount => '200.00', 
+           :vat_amount => '50.00'}
+        ]
+      )
     end
     
     it "should able to create an invoice for a foreign currency (not € or $) single-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('single-dkk'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-06-24'), 'Halvandet', '2009-06-24-03', '73.00', '14.60', true, 'DKK').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Food & drink', '73.00', '14.60', '494', 'VAT - Denmark - 25%')
-      
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:merchant => 'Halvandet', :currency => 'DKK'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:vat_type => '25% (Denmark, VAT on expenses)', :vat_inclusive_amount => '73.00', :vat_exclusive_amount => '58.40', 
+           :vat_amount => '14.60'}
+        ]
+      )
     end
     
-    it "should cope with a VAT-exclusive invoice" do
-      @converter.stubs(:input_path).returns(fixture_path('single-ex-vat'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-06-24'), 'Halvandet', '2009-06-24-03', '73.00', '14.60', false, 'DKK').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Food & drink', '73.00', '14.60', '494', 'VAT - Denmark - 25%')
-      
+    it "should cope with a single item invoice with no VAT" do
+      @converter.stubs(:input_path).returns(fixture_path('single-no-vat'))
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:inc_vat_total => '4.50', :vat_total => '0.00', :ex_vat_total => '4.50'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:vat_type => 'No VAT', :vat_inclusive_amount => '4.50', :vat_exclusive_amount => '4.50', 
+           :vat_amount => nil}
+        ]
+      )
     end
   end
   
   describe "multi-item inputs" do
     it "should able to create an Invoice for a basic multi-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('multi-item'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-05-18'), 'Apple Store, Regent Street', '2009-05-18-09', '617.95', '80.60', true, 'GBP').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('iWork 09', '70.00', '9.13', '463', 'VAT - 15%')
-      mock_invoice.expects(:add_item).with('VMWare Fusion', '48.95', '6.38', '463', 'VAT - 15%')
-      mock_invoice.expects(:add_item).with('Mac Mini', '499.00', '65.09', '720', 'VAT - 15%')
-      
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:date => Date.parse('2009-05-18'), :merchant => 'Apple Store, Regent Street', 
+                     :reference_id => '2009-05-18-09', :inc_vat_total => '617.95', :vat_total => '80.60', 
+                     :ex_vat_total => '537.35', :currency => 'GBP'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:description => 'Mac Mini', :category => '720', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '499.00', :vat_exclusive_amount => '433.91', :vat_amount => '65.09'},
+          {:description => 'iWork 09', :category => '463', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '70.00', :vat_exclusive_amount => '60.87', :vat_amount => '9.13'},
+          {:description => 'VMWare Fusion', :category => '463', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '48.95', :vat_exclusive_amount => '42.57', :vat_amount => '6.38'}
+        ]
+      )
     end
     
     it "should able to create an Invoice for a foreign currency multi-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('multi-foreign'))
-      mock_invoice = mock()
-      
-      PaperlessToXero::Invoice.expects(:new).with(Date.parse('2009-06-22'), 'Geberer', '2009-06-22-02', '2.80', '0.33', true, 'EUR').returns(mock_invoice)
-      mock_invoice.expects(:add_item).with('Coffee', '1.50', '0.24', '494', 'VAT - Germany - 19%')
-      mock_invoice.expects(:add_item).with('Food', '1.30', '0.09','494', 'VAT - Germany - 7%')
-      
       @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:currency => 'EUR', :inc_vat_total => '2.80', :vat_total => '0.33', 
+                     :ex_vat_total => '2.47'},
+        :vat_inclusive => true,
+        :line_items => [
+          {:description => 'Coffee', :vat_type => '19% (Germany, VAT on expenses)', 
+           :vat_inclusive_amount => '1.50', :vat_amount => '0.24'},
+          {:description => 'Food', :vat_type => '7% (Germany, VAT on expenses)', 
+           :vat_inclusive_amount => '1.30', :vat_amount => '0.09'}
+        ]
+      )
+    end
+    
+    it "should cope with a VAT-exclusive invoice" do
+      @converter.stubs(:input_path).returns(fixture_path('multi-ex-vat'))
+      @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:date => Date.parse('2009-05-18'), :merchant => 'Apple Store, Regent Street', 
+                     :reference_id => '2009-05-18-09', :inc_vat_total => '617.95', :vat_total => '80.60', 
+                     :ex_vat_total => '537.35', :currency => 'GBP'},
+        :vat_inclusive => false,
+        :line_items => [
+          {:description => 'Mac Mini', :category => '720', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '499.00', :vat_exclusive_amount => '433.91', :vat_amount => '65.09'},
+          {:description => 'iWork 09', :category => '463', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '70.00', :vat_exclusive_amount => '60.87', :vat_amount => '9.13'},
+          {:description => 'VMWare Fusion', :category => '463', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '48.95', :vat_exclusive_amount => '42.57', :vat_amount => '6.38'}
+        ]
+      )
     end
   end
   
