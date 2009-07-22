@@ -1,6 +1,7 @@
 "Date","Merchant","Currency","Amount","Tax","Category","Payment Method","Notes","Description","Reference #","Status"
-22/06/2009,"Geberer","£","2.80",,"494 - Travel International","Cash","€ ","Food & Coffee","2009-06-22-02",,"Coffee","£","1.50",,"494 - Travel International","0.24; VAT - Germany - 19%","Food","£","1.30",,"494 - Travel International","0.09; VAT - Germany - 7%"
+22/06/2009,"Geberer","£","2.80","0.33","494 - Travel International","Cash","€ ","Food & Coffee","2009-06-22-02",,"Coffee","£","1.50",,"494 - Travel International","0.24; VAT - Germany - 19%","Food","£","1.30",,"494 - Travel International","0.09; VAT - Germany - 7%"
 29/05/2009,"FDIH","£","250.00","50.00","480 - Staff Training","Credit Card","€; VAT - Denmark - 25%","Reboot 11 ticket","2009-05-29-02",
 18/05/2009,"Apple Store, Regent Street","£","617.95","80.60",,"Debit Card",,"Mac Mini, iWork, VMWare Fusion","2009-05-18-09",,"Mac Mini","£","499.00",,"720 - Computer Equipment","65.09; VAT - 15%","iWork 09","£","70.00",,"463 - IT Software and Consumables","9.13; VAT - 15%","VMWare Fusion","£","48.95",,"463 - IT Software and Consumables","6.38; VAT - 15%"
 18/05/2009,"Apple Store, Regent Street","£","14.95","1.95","429 - General Expenses","Debit Card",,"Phone case","2009-05-18-05",
 23/04/2009,"Rexel Senate","£","81.42","10.62","325 - Direct Expenses",,,"Cat 6 modules","2009-04-23-04",
+18/04/2009,"Apple Store, Regent Street","£","617.95","80.60",,"Debit Card","Ex VAT","Mac Mini, iWork, VMWare Fusion","2009-04-18-09",,"Mac Mini","£","433.91",,"720 - Computer Equipment","65.09; VAT - 15%","iWork 09","£","60.87",,"463 - IT Software and Consumables","9.13; VAT - 15%","VMWare Fusion","£","42.57",,"463 - IT Software and Consumables","6.38; VAT - 15%"

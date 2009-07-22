@@ -27,9 +27,9 @@ module PaperlessToXero
           amount = amount.tr(',', '') unless amount.nil?
           vat = vat.tr(',', '') unless vat.nil?
           notes = extract_notes(notes_field)
-          invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, extract_currency(notes))
+          invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, amount, vat, inc_vat?(notes), extract_currency(notes))
           if extras.empty?
-            invoice.add_item(description, amount, vat, category, extract_vat_note(vat, notes), true)
+            invoice.add_item(description, amount, vat, category, extract_vat_note(vat, notes))
           else
             raise RangeError, "input CSV row is badly formatted" unless extras.size % 6 == 0
             items = chunk_extras(extras)
@@ -39,7 +39,7 @@ module PaperlessToXero
               notes = extract_notes(notes_field)
               vat_amount = extract_vat_amount(notes)
               vat_note = extract_vat_note(vat_amount, notes)
-              invoice.add_item(description, amount, vat_amount, category, vat_note, true)
+              invoice.add_item(description, amount, vat_amount, category, vat_note)
             end
           end
           invoices << invoice
@@ -71,6 +71,13 @@ module PaperlessToXero
     end
     
     private
+    
+    def inc_vat?(notes)
+      notes.each do |item|
+        return false if item.match(/^Ex[ -]?VAT$/i)
+      end
+      true
+    end
     
     def extract_date(date_string)
       ds, day, month, year = date_string.match(/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/).to_a

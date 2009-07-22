@@ -5,8 +5,8 @@ module PaperlessToXero
   
   module Version
     MAJOR = 1
-    MINOR = 0
-    POINT = 3
+    MINOR = 1
+    POINT = 0
     FULL = [PaperlessToXero::Version::MAJOR, PaperlessToXero::Version::MINOR, PaperlessToXero::Version::POINT].join('.')
   end
 end

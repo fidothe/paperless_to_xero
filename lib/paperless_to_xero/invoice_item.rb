@@ -1,8 +1,11 @@
 require 'bigdecimal'
 require 'bigdecimal/util'
+require 'paperless_to_xero/decimal_helpers'
 
 module PaperlessToXero
   class InvoiceItem
+    include PaperlessToXero::DecimalHelpers
+    
     class << self
       def fetch_vat_rate(vat_type)
         @vat_rates ||= {
@@ -32,7 +35,8 @@ module PaperlessToXero
       when BigDecimal
         decimal_amount = BigDecimal.new(@amount)
         decimal_vat_amount = @vat_amount.nil? ? nil : BigDecimal.new(@vat_amount)
-        vat_inclusive ? amounts_when_vat_inclusive(decimal_amount, decimal_vat_amount) : amounts_when_vat_exclusive(decimal_amount, decimal_vat_amount)
+        amounts_method = vat_inclusive ? :amounts_when_vat_inclusive : :amounts_when_vat_exclusive
+        @vat_exclusive_amount, @vat_amount, @vat_inclusive_amount = self.send(amounts_method, decimal_amount, decimal_vat_amount)
       else
         amounts_when_zero_rated_or_non_vat(vat_rate)
       end
@@ -44,26 +48,6 @@ module PaperlessToXero
       @vat_inclusive_amount = @amount
       @vat_exclusive_amount = @amount
       @vat_amount = vat_rate.nil? ? nil : "0.00"
-    end
-    
-    def amounts_when_vat_inclusive(decimal_inc_vat_amount, decimal_vat_amount)
-      @vat_inclusive_amount = formatted_decimal(decimal_inc_vat_amount)
-      @vat_amount = formatted_decimal(decimal_vat_amount)
-      decimal_ex_vat_amount = decimal_inc_vat_amount - decimal_vat_amount
-      @vat_exclusive_amount = formatted_decimal(decimal_ex_vat_amount)
-    end
-    
-    def amounts_when_vat_exclusive(decimal_ex_vat_amount, decimal_vat_amount)
-      @vat_exclusive_amount = formatted_decimal(decimal_ex_vat_amount)
-      @vat_amount = formatted_decimal(decimal_vat_amount)
-      decimal_inc_vat_amount = decimal_ex_vat_amount + decimal_vat_amount
-      @vat_inclusive_amount = formatted_decimal(decimal_inc_vat_amount)
-    end
-    
-    def formatted_decimal(value)
-      value = value.to_s('F')
-      value = value + '0' unless value.index('.') < value.size - 2
-      value
     end
     
     def fetch_vat_rate(vat_type)
