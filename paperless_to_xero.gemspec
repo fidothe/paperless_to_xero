@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{paperless_to_xero}
-  s.version = "1.1.0"
+  s.version = "1.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Patterson"]
@@ -16,7 +16,7 @@ Formatting in Paperless is very important, so you probably want to wait until I'
   s.email = %q{matt@reprocessed.org}
   s.executables = ["paperless_to_xero"]
   s.extra_rdoc_files = ["README.rdoc"]
-  s.files = ["Rakefile", "README.rdoc", "bin/paperless_to_xero", "spec/fixtures", "spec/fixtures/end_to_end-input.csv", "spec/fixtures/end_to_end-output.csv", "spec/fixtures/multi-foreign.csv", "spec/fixtures/multi-item.csv", "spec/fixtures/single-1000.csv", "spec/fixtures/single-basic.csv", "spec/fixtures/single-dkk.csv", "spec/fixtures/single-ex-vat.csv", "spec/fixtures/single-foreign.csv", "spec/fixtures/single-zero_rated.csv", "spec/paperless_to_xero", "spec/paperless_to_xero/converter_spec.rb", "spec/paperless_to_xero/invoice_item_spec.rb", "spec/paperless_to_xero/invoice_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "lib/paperless_to_xero", "lib/paperless_to_xero/converter.rb", "lib/paperless_to_xero/decimal_helpers.rb", "lib/paperless_to_xero/invoice.rb", "lib/paperless_to_xero/invoice_item.rb", "lib/paperless_to_xero/version.rb", "lib/paperless_to_xero.rb"]
+  s.files = ["Rakefile", "README.rdoc", "bin/paperless_to_xero", "spec/fixtures", "spec/fixtures/end_to_end-input.csv", "spec/fixtures/end_to_end-output.csv", "spec/fixtures/multi-ex-vat.csv", "spec/fixtures/multi-foreign.csv", "spec/fixtures/multi-item.csv", "spec/fixtures/single-1000.csv", "spec/fixtures/single-basic.csv", "spec/fixtures/single-dkk.csv", "spec/fixtures/single-foreign.csv", "spec/fixtures/single-no-vat.csv", "spec/fixtures/single-zero_rated.csv", "spec/paperless_to_xero", "spec/paperless_to_xero/converter_spec.rb", "spec/paperless_to_xero/invoice_item_spec.rb", "spec/paperless_to_xero/invoice_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "lib/paperless_to_xero", "lib/paperless_to_xero/converter.rb", "lib/paperless_to_xero/decimal_helpers.rb", "lib/paperless_to_xero/invoice.rb", "lib/paperless_to_xero/invoice_item.rb", "lib/paperless_to_xero/version.rb", "lib/paperless_to_xero.rb"]
   s.homepage = %q{http://reprocessed.org/}
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]
