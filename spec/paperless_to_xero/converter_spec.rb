@@ -192,6 +192,24 @@ describe PaperlessToXero::Converter do
         ]
       )
     end
+    
+    it "should be able to cope with an multi-line invoice with mixed VAT and VAT-exempt lines" do
+      @converter.stubs(:input_path).returns(fixture_path('multi-item-mixed_vat_and_exempt'))
+      @converter.parse
+      
+      verify_invoice_details(
+        :invoice => {:date => Date.parse('2009-07-23'), :merchant => 'Post Office', 
+                     :reference_id => '2009-07-23-03', :inc_vat_total => '3.55', :vat_total => '0.29', 
+                     :ex_vat_total => '3.26', :currency => 'GBP'},
+        :vat_inclusive => false,
+        :line_items => [
+          {:description => 'Envelopes', :category => '429', :vat_type => '15% (VAT on expenses)',
+           :vat_inclusive_amount => '2.19', :vat_exclusive_amount => '1.90', :vat_amount => '0.29'},
+          {:description => 'Postage', :category => '425', :vat_type => 'Zero Rated Expenses',
+           :vat_inclusive_amount => '1.36', :vat_exclusive_amount => '1.36', :vat_amount => '0.00'}
+        ]
+      )
+    end
   end
   
   describe "end-to-end" do
