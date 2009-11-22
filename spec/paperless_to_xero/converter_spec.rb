@@ -48,6 +48,13 @@ describe PaperlessToXero::Converter do
     end
   end
   
+  describe "checking the header row" do
+    it "should raise an UnknownHeaderRow error if it doesn't recognise the header..." do
+      @converter.stubs(:input_path).returns(fixture_path('dodgy-header'))
+      lambda { @converter.parse }.should raise_error(UnknownHeaderRow)
+    end
+  end
+  
   describe "single item inputs" do
     it "should able to create an invoice for a basic single-item invoice" do
       @converter.stubs(:input_path).returns(fixture_path('single-basic'))

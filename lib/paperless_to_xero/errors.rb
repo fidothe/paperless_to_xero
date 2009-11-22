@@ -1,0 +1,3 @@
+class UnknownHeaderRow < StandardError
+  
+end

@@ -1,7 +1,9 @@
 require 'csv'
 require 'date'
+require 'paperless_to_xero/errors'
 
 module PaperlessToXero
+  PAPERLESS_HEADER_ROW = ["Date","Merchant","Currency","Amount","Tax","Category","Payment Method","Notes","Description","Reference #","Status"]
   class Converter
     attr_reader :input_path, :output_path
     
@@ -13,10 +15,14 @@ module PaperlessToXero
       @invoices ||= []
     end
     
+    def verify_header_row!(row)
+      raise UnknownHeaderRow unless row == PaperlessToXero::PAPERLESS_HEADER_ROW
+    end
+    
     def parse
       input_csv = CSV.read(input_path)
-      # remove Paperless header row
-      input_csv.shift
+      # verify Paperless header row
+      verify_header_row!(input_csv.shift)
       
       input_csv.each do |row|
         date, merchant, paperless_currency, amount, vat, category, payment_method, notes_field, description, reference, status, *extras = row
