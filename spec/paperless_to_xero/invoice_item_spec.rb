@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 describe PaperlessToXero::InvoiceItem do
   describe "the creation basics" do
@@ -144,6 +144,7 @@ describe PaperlessToXero::InvoiceItem do
          'VAT - Luxembourg'       => '15% (Luxembourg, VAT on expenses)',
          'VAT - EU'               => '15% (EU VAT ID)',
          'VAT - EU - EU372000063' => '15% (EU VAT ID)',
+         'VAT - 17.5%'              => '17.5% (VAT on expenses)',
          'VAT - 15%'              => '15% (VAT on expenses)',
          'VAT - 0%'               => 'Zero Rated Expenses',
          'VAT'                    => '15% (VAT on expenses)',

@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 require 'tempfile'
 
 Spec::Matchers.define :have_detail_matching do |key, value|
@@ -51,7 +51,7 @@ describe PaperlessToXero::Converter do
   describe "checking the header row" do
     it "should raise an UnknownHeaderRow error if it doesn't recognise the header..." do
       @converter.stubs(:input_path).returns(fixture_path('dodgy-header'))
-      lambda { @converter.parse }.should raise_error(UnknownHeaderRow)
+      lambda { @converter.parse }.should raise_error(PaperlessToXero::UnknownHeaderRow)
     end
   end
   
@@ -139,6 +139,110 @@ describe PaperlessToXero::Converter do
            :vat_amount => nil}
         ]
       )
+    end
+    
+    describe "UK VAT rate changes" do
+      describe "pre 2008-12 17.5% VAT" do
+        it "correctly handles days in that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-pre-2008-12'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2008-05-18'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2008-05-18-05', :inc_vat_total => '117.50', :vat_total => '17.50', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '17.5% (VAT on expenses)',
+               :vat_inclusive_amount => '117.50', :vat_exclusive_amount => '100.00', :vat_amount => '17.50'}
+            ]
+          )
+        end
+        
+        it "correctly handles the last day of that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2008-11-30'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2008-11-30'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2008-11-30-05', :inc_vat_total => '117.50', :vat_total => '17.50', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '17.5% (VAT on expenses)',
+               :vat_inclusive_amount => '117.50', :vat_exclusive_amount => '100.00', :vat_amount => '17.50'}
+            ]
+          )
+        end
+      end
+      
+      describe "2009's 15% VAT rate" do
+        it "correctly handles the first day of that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2008-12-01'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2008-12-01'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2008-12-01-05', :inc_vat_total => '115.00', :vat_total => '15.00', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '15% (VAT on expenses)',
+               :vat_inclusive_amount => '115.00', :vat_exclusive_amount => '100.00', :vat_amount => '15.00'}
+            ]
+          )
+        end
+        
+        it "correctly handles days in that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2009'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2009-06-01'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2009-06-01-05', :inc_vat_total => '115.00', :vat_total => '15.00', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '15% (VAT on expenses)',
+               :vat_inclusive_amount => '115.00', :vat_exclusive_amount => '100.00', :vat_amount => '15.00'}
+            ]
+          )
+        end
+        
+        it "correctly handles the last day of that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2009-12-31'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2009-12-31'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2009-12-31-05', :inc_vat_total => '115.00', :vat_total => '15.00', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '15% (VAT on expenses)',
+               :vat_inclusive_amount => '115.00', :vat_exclusive_amount => '100.00', :vat_amount => '15.00'}
+            ]
+          )
+        end
+      end
+      
+      describe "2010-01-01's return to 17.5% VAT" do
+        it "correctly handles the first day of that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2010-01-01'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2010-01-01'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2010-01-01-05', :inc_vat_total => '117.50', :vat_total => '17.50', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '17.5% (VAT on expenses)',
+               :vat_inclusive_amount => '117.50', :vat_exclusive_amount => '100.00', :vat_amount => '17.50'}
+            ]
+          )
+        end
+      end
     end
   end
   

@@ -30,10 +30,12 @@ Formatting in Paperless is very important, so you probably want to wait until I'
      "lib/paperless_to_xero.rb",
      "lib/paperless_to_xero/converter.rb",
      "lib/paperless_to_xero/decimal_helpers.rb",
+     "lib/paperless_to_xero/errors.rb",
      "lib/paperless_to_xero/invoice.rb",
      "lib/paperless_to_xero/invoice_item.rb",
      "lib/paperless_to_xero/version.rb",
      "paperless_to_xero.gemspec",
+     "spec/fixtures/dodgy-header.csv",
      "spec/fixtures/end_to_end-input.csv",
      "spec/fixtures/end_to_end-output.csv",
      "spec/fixtures/multi-ex-vat.csv",
@@ -60,6 +62,7 @@ Formatting in Paperless is very important, so you probably want to wait until I'
   s.summary = %q{Convert Paperless CSV exports to Xero invoice import CSV}
   s.test_files = [
     "spec/paperless_to_xero/converter_spec.rb",
+     "spec/paperless_to_xero/errors_spec.rb",
      "spec/paperless_to_xero/invoice_item_spec.rb",
      "spec/paperless_to_xero/invoice_spec.rb",
      "spec/spec_helper.rb"

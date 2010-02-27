@@ -17,6 +17,7 @@ module PaperlessToXero
           '21.5% (Ireland, VAT on expenses)' => 1.215.to_d,
           '15% (EU VAT ID)' => 1.15.to_d,
           '15% (VAT on expenses)' => 1.15.to_d,
+          '17.5% (VAT on expenses)' => 1.175.to_d,
           'Zero Rated Expenses' => 0,
           '15% (Luxembourg, VAT on expenses)' => 1.15.to_d
         }
@@ -76,6 +77,8 @@ module PaperlessToXero
         '15% (EU VAT ID)'
       when 'VAT - 15%'
         '15% (VAT on expenses)'
+      when 'VAT - 17.5%'
+        '17.5% (VAT on expenses)'
       when 'VAT - 0%'
         'Zero Rated Expenses'
       when 'No VAT'

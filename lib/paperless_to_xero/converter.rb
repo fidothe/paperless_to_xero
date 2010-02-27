@@ -5,6 +5,8 @@ require 'paperless_to_xero/errors'
 module PaperlessToXero
   PAPERLESS_HEADER_ROW = ["Date","Merchant","Currency","Amount","Tax","Category","Payment Method","Notes","Description","Reference #","Status"]
   class Converter
+    VAT_RATE_CHANGE_2008_12_01 = Date.parse('2008-12-01')
+    VAT_RATE_CHANGE_2010_01_01 = Date.parse('2010-01-01')
     attr_reader :input_path, :output_path
     
     def initialize(input_path, output_path)
@@ -24,7 +26,8 @@ module PaperlessToXero
       # verify Paperless header row
       verify_header_row!(input_csv.shift)
       
-      input_csv.each do |row|
+      input_csv.each_with_index do |row, index|
+        line_number = index + 1
         date, merchant, paperless_currency, amount, vat, category, payment_method, notes_field, description, reference, status, *extras = row
         negative = amount.index('--') == 0
         category = category[0..2] unless category.nil?
@@ -36,17 +39,25 @@ module PaperlessToXero
           total_vat = vat.nil? ? "0.00" : vat
           invoice = PaperlessToXero::Invoice.new(extract_date(date), merchant, reference, amount, total_vat, inc_vat?(notes), extract_currency(notes))
           if extras.empty?
-            invoice.add_item(description, amount, vat, category, extract_vat_note(vat, notes))
+            begin
+              invoice.add_item(description, amount, vat, category, extract_vat_note(invoice.date, vat, notes))
+            rescue
+              raise BadItem.new(line_number, row, "Couldn't process this item")
+            end
           else
-            raise RangeError, "input CSV row is badly formatted" unless extras.size % 6 == 0
+            raise IncorrectNumberOfColumns.new(line_number, row, "Extra items are badly formatted") unless extras.size % 6 == 0
             items = chunk_extras(extras)
             items.each do |item|
-              description, paperless_currency, amount, unknown, category, notes_field = item
-              category = category[0..2]
-              notes = extract_notes(notes_field)
-              vat_amount = extract_vat_amount(notes)
-              vat_note = extract_vat_note(vat_amount, notes)
-              invoice.add_item(description, amount, vat_amount, category, vat_note)
+              begin
+                description, paperless_currency, amount, unknown, category, notes_field = item
+                category = category[0..2]
+                notes = extract_notes(notes_field)
+                vat_amount = extract_vat_amount(notes)
+                vat_note = extract_vat_note(invoice.date, vat_amount, notes)
+                invoice.add_item(description, amount, vat_amount, category, vat_note)
+              rescue
+                raise BadItem.new(line_number, row, "Couldn't process this item")
+              end
             end
           end
           invoices << invoice
@@ -123,7 +134,7 @@ module PaperlessToXero
       nil
     end
     
-    def extract_vat_note(vat_amount, notes)
+    def extract_vat_note(date, vat_amount, notes)
       notes.each do |item|
         return item if item.match(/^VAT/)
       end
@@ -134,7 +145,8 @@ module PaperlessToXero
       when nil
         'No VAT'
       else
-        'VAT - 15%'
+        return 'VAT - 15%' if date >= VAT_RATE_CHANGE_2008_12_01 && date < VAT_RATE_CHANGE_2010_01_01
+        'VAT - 17.5%'
       end
     end
   end
