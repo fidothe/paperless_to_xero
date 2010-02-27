@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{paperless_to_xero}
-  s.version = "1.1.2"
+  s.version = "1.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Patterson"]
-  s.date = %q{2009-11-22}
+  s.date = %q{2010-02-27}
   s.default_executable = %q{paperless_to_xero}
   s.description = %q{= Paperless-to-Xero
 
@@ -47,8 +47,15 @@ Formatting in Paperless is very important, so you probably want to wait until I'
      "spec/fixtures/single-dkk.csv",
      "spec/fixtures/single-foreign.csv",
      "spec/fixtures/single-no-vat.csv",
+     "spec/fixtures/single-vat-2008-11-30.csv",
+     "spec/fixtures/single-vat-2008-12-01.csv",
+     "spec/fixtures/single-vat-2009-12-31.csv",
+     "spec/fixtures/single-vat-2009.csv",
+     "spec/fixtures/single-vat-2010-01-01.csv",
+     "spec/fixtures/single-vat-pre-2008-12.csv",
      "spec/fixtures/single-zero_rated.csv",
      "spec/paperless_to_xero/converter_spec.rb",
+     "spec/paperless_to_xero/errors_spec.rb",
      "spec/paperless_to_xero/invoice_item_spec.rb",
      "spec/paperless_to_xero/invoice_spec.rb",
      "spec/spec.opts",
@@ -58,7 +65,7 @@ Formatting in Paperless is very important, so you probably want to wait until I'
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{paperless_to_xero}
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Convert Paperless CSV exports to Xero invoice import CSV}
   s.test_files = [
     "spec/paperless_to_xero/converter_spec.rb",
