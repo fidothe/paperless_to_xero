@@ -244,6 +244,24 @@ describe PaperlessToXero::Converter do
         end
       end
     end
+    
+    describe "handling Pingdom's USD invoices with Swedish 25%" do
+      it "correctly applies both currency and VAT" do
+        @converter.stubs(:input_path).returns(fixture_path('dollars_with_swedish_vat'))
+        @converter.parse
+        
+        verify_invoice_details(
+          :invoice => {:date => Date.parse('2010-06-06'), :merchant => 'Pingdom', 
+                       :reference_id => '2010-06-06-01', :inc_vat_total => '149.25', :vat_total => '29.95', 
+                       :ex_vat_total => '119.30', :currency => 'USD'},
+          :vat_inclusive => true,
+          :line_items => [
+            {:description => 'Pingdom site monitoring subscription', :category => '429', :vat_type => '25% (Sweden, VAT on expenses)',
+             :vat_inclusive_amount => '149.25', :vat_exclusive_amount => '119.30', :vat_amount => '29.95'}
+          ]
+        )
+      end
+    end
   end
   
   describe "multi-item inputs" do

@@ -14,6 +14,7 @@ module PaperlessToXero
           '7% (Germany, VAT on expenses)' => 1.07.to_d,
           '19% (Germany, VAT on expenses)' => 1.19.to_d,
           '25% (Denmark, VAT on expenses)' => 1.25.to_d,
+          '25% (Sweden, VAT on expenses)' => 1.25.to_d,
           '21.5% (Ireland, VAT on expenses)' => 1.215.to_d,
           '15% (EU VAT ID)' => 1.15.to_d,
           '15% (VAT on expenses)' => 1.15.to_d,
