@@ -242,6 +242,40 @@ describe PaperlessToXero::Converter do
             ]
           )
         end
+        
+        it "correctly handles the last day of that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2011-01-03'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2011-01-03'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2011-01-03-05', :inc_vat_total => '117.50', :vat_total => '17.50', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '17.5% (VAT on expenses)',
+               :vat_inclusive_amount => '117.50', :vat_exclusive_amount => '100.00', :vat_amount => '17.50'}
+            ]
+          )
+        end
+      end
+      
+      describe "2011-01-04's move to 20% VAT" do
+        it "correctly handles the first day of that VAT rate" do
+          @converter.stubs(:input_path).returns(fixture_path('single-vat-2011-01-04'))
+          @converter.parse
+          
+          verify_invoice_details(
+            :invoice => {:date => Date.parse('2011-01-04'), :merchant => 'Apple Store, Regent Street', 
+                         :reference_id => '2011-01-04-05', :inc_vat_total => '120.00', :vat_total => '20.00', 
+                         :ex_vat_total => '100.00', :currency => 'GBP'},
+            :vat_inclusive => true,
+            :line_items => [
+              {:description => 'Phone case', :category => '429', :vat_type => '20% (VAT on expenses)',
+               :vat_inclusive_amount => '120.00', :vat_exclusive_amount => '100.00', :vat_amount => '20.00'}
+            ]
+          )
+        end
       end
     end
     

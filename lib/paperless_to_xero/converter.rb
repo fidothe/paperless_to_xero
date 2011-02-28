@@ -7,6 +7,7 @@ module PaperlessToXero
   class Converter
     VAT_RATE_CHANGE_2008_12_01 = Date.parse('2008-12-01')
     VAT_RATE_CHANGE_2010_01_01 = Date.parse('2010-01-01')
+    VAT_RATE_CHANGE_2011_01_04 = Date.parse('2011-01-04')
     attr_reader :input_path, :output_path
     
     def initialize(input_path, output_path)
@@ -145,9 +146,15 @@ module PaperlessToXero
       when nil
         'No VAT'
       else
-        return 'VAT - 15%' if date >= VAT_RATE_CHANGE_2008_12_01 && date < VAT_RATE_CHANGE_2010_01_01
-        'VAT - 17.5%'
+        base_uk_vat_rate_on_date(date)
       end
+    end
+    
+    def base_uk_vat_rate_on_date(date)
+      return 'VAT - 15%' if date >= VAT_RATE_CHANGE_2008_12_01 && date < VAT_RATE_CHANGE_2010_01_01
+      return 'VAT - 17.5%' if date >= VAT_RATE_CHANGE_2010_01_01 && date < VAT_RATE_CHANGE_2011_01_04
+      return 'VAT - 20%' if date >= VAT_RATE_CHANGE_2011_01_04
+      'VAT - 17.5%'
     end
   end
 end

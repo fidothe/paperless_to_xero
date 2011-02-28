@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{paperless_to_xero}
-  s.version = "1.2.1"
+  s.version = "1.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Patterson"]
-  s.date = %q{2010-02-27}
+  s.date = %q{2011-02-28}
   s.default_executable = %q{paperless_to_xero}
   s.description = %q{= Paperless-to-Xero
 
